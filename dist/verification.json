@@ -1,0 +1,16 @@
+{
+  "version": "0.1.0 alpha",
+  "target": "WoT EU 2.4.1.1 #993",
+  "rea_evidence": "ev_fd425e5fc60f4544ad3994670aa9fa104602eece039f27ead94887143e9bcd51",
+  "tests": "8 Python 2.7 tests; JS slot restoration checks; ZIP and WAV validation passed",
+  "in_game_verified": false,
+  "recording_entries": 392,
+  "voice_files": 295,
+  "sources": {
+    "evidence\\decoded\\fort_rush\\gui\\sound_notifications.xml": "1153665afb9f6b4a3dd85c5f140f74d78ce2acaff0a34a96575118ed36892b49",
+    "evidence\\decoded\\gui\\sound_notifications.xml": "0ad7ec7961d75badd0135138a62a2433a02ca37da3a423f7ee02e12a96acac62",
+    "evidence\\decoded\\halloween\\gui\\sound_notifications.xml": "3e7d4fe0e9c162697bd6ac576768d1bdbb3e0993451e5b295a552f74e5e63457",
+    "evidence\\decoded\\last_stand\\gui\\sound_notifications.xml": "2295bff5b1cbc923b3286b560d498d668104ba8dfe4f1fb4fe1ed56edac5dd7c",
+    "evidence\\decoded\\story_mode\\gui\\sound_notifications.xml": "37cd93fbb7134b94d87cb4ecc694cbb32104e62d771de0f0ab405a18f6e8b11c"
+  }
+}
