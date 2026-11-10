@@ -1,0 +1,20 @@
+{
+  "version": "0.2.1",
+  "time": "2026-11-10T18:36:16.447370",
+  "changes": [
+    "Papacito ricochet clip also serves armor-not-pierced notifications",
+    "Skip absent garage view models while refreshing available models",
+    "Log custom voice playback events"
+  ],
+  "regressions": {
+    "before": "2 failing tests: non-penetrating armor hit and garage refresh",
+    "after": "14 passing tests using copied game Python DLL"
+  },
+  "installation": {
+    "mod_package": "installed and verified",
+    "profile_files": "all verified",
+    "voice_gain": 0.8
+  },
+  "runtime_validation": "pending new session",
+  "installed_sha256": "c0ff191ec01e7b7026a68e06308a039ba9c09d1826d039fb5fcca1f19c7dfe53"
+}

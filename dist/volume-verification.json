@@ -1,0 +1,10 @@
+{
+  "vo_armor_not_pierced_by_player.wav": 0.8,
+  "vo_armor_ricochet_by_player.wav": 0.8,
+  "vo_enemy_hp_damaged_by_projectile_by_player.wav": 0.8,
+  "vo_enemy_killed_by_player.wav": 0.8,
+  "vo_start_battle.wav": 0.8,
+  "vo_track_destroyed.wav": 0.8,
+  "vo_track_functional.wav": 0.8,
+  "vo_vehicle_destroyed.wav": 0.8
+}

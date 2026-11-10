@@ -6,9 +6,9 @@ if sys.version_info[:2] != (2, 7):
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 dist = os.path.join(root, 'dist')
 if not os.path.isdir(dist): os.makedirs(dist)
-package = os.path.join(dist, 'matisse.commander_friend_0.1.1.wotmod')
+package = os.path.join(dist, 'matisse.commander_friend_0.2.4.wotmod')
 with zipfile.ZipFile(package, 'w', zipfile.ZIP_STORED) as z:
-    z.writestr('meta.xml', '<root><id>matisse.commander_friend</id><version>0.1.1</version><name>Chef de char ami</name><description>Local commander portrait and voice prototype for WoT EU 2.4.1.1</description></root>')
+    z.writestr('meta.xml', '<root><id>matisse.commander_friend</id><version>0.2.4</version><name>Chef de char ami</name><description>Local commander portrait and voice prototype for WoT EU 2.4.1.1</description></root>')
     for name in ['mod_commander_friend', 'commander_friend_catalog']:
         src = os.path.join(root,'src',name+'.py')
         dest = os.path.join(dist,name+'.pyc')
@@ -16,7 +16,13 @@ with zipfile.ZipFile(package, 'w', zipfile.ZIP_STORED) as z:
         sub = 'gui/mods/' if name.startswith('mod_') else ''
         z.write(dest, 'res/scripts/client/'+sub+name+'.pyc')
     z.write(os.path.join(root,'src','portrait.js'),'res/gui/gameface/mods/commander_friend/portrait.js')
+    z.write(os.path.join(root,'src','resources.json'),'res/gui/gen_resources/matisse.commander_friend.json')
     z.write(os.path.join(root,'assets','demo.png'),'res/gui/maps/icons/commander_friend/demo.png')
+    z.write(os.path.join(root,'assets','profiles','papacito','portrait.jpg'),
+            'res/gui/maps/icons/commander_friend/profiles/papacito/portrait.jpg')
+    for folder in ['', 'crewSkins/']:
+        z.write(os.path.join(root,'assets','profiles','papacito','portrait.jpg'),
+                'res/gui/maps/icons/tankmen/icons/big/'+folder+'commander_friend_papacito.jpg')
 with zipfile.ZipFile(package) as z:
     assert z.testzip() is None
     assert all(i.compress_type==zipfile.ZIP_STORED for i in z.infolist())

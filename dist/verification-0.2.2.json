@@ -1,0 +1,12 @@
+{
+  "version": "0.2.2",
+  "time": "2026-11-10T18:46:13.743613",
+  "sha256": "19911dc9fc3001f308bee66e2acd7759881d4e2378cd14d57a754a91ce74f926",
+  "tests": {
+    "core": 14,
+    "native_portrait_using_game_python": 5,
+    "native_resources": "two JPEG paths verified byte-for-byte"
+  },
+  "in_game_validation": "waiting for user to restart",
+  "installation": "installed; package hash verified"
+}

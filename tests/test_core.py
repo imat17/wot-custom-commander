@@ -1,5 +1,5 @@
 from __future__ import absolute_import
-import os, sys, unittest, tempfile, shutil, wave, types
+import os, sys, unittest, tempfile, shutil, wave, types, json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 import mod_commander_friend as mod
 
@@ -27,6 +27,7 @@ class Tests(unittest.TestCase):
         mod.notice = lambda message: None
         mod.PATCHES = []
         mod.PENDING_AUDIO = {}
+        mod.SETTINGS = dict(mod.DEFAULTS, profile=0)
         self.player = Obj(vehicleTypeDescriptor=Obj(type=Obj(compactDescr=42)))
         self.callbacks = {}
         bw = types.ModuleType('BigWorld')
@@ -88,7 +89,7 @@ class Tests(unittest.TestCase):
             playNextQueueEvent=lambda q:calls.append(('next',q)))
         p=os.path.join(self.temp,'valid.wav')
         w=wave.open(p,'wb');w.setnchannels(1);w.setsampwidth(2);w.setframerate(8000);w.writeframes(b'\0'*1600);w.close()
-        mod.sound_file=lambda filename:p;mod.SOUND=lambda *args:1
+        mod.sound_file=lambda filename, profile=None:p;mod.SOUND=lambda *args:1
         self.assertFalse(mod.play_queued(manager,1,'not_a_game_event'))
         self.assertFalse(mod.play_queued(manager,2,'start_battle'))
         self.assertTrue(mod.play_queued(manager,1,'start_battle'))
@@ -109,10 +110,110 @@ class Tests(unittest.TestCase):
         mod.patch_context_menu()
         h=Handler();h._tankman=Obj(invID=10,role='commander')
         self.assertEqual(h._generateOptions()[0],'native')
+        self.assertEqual(h._generateOptions()[1]['id'],mod.PROFILE_ACTION+'papacito')
+        h.onOptionSelect(mod.PROFILE_ACTION+'papacito');self.assertEqual(mod.selected_profile(10),'papacito')
+        # Choosing an already active profile is idempotent, not a toggle.
+        h.onOptionSelect(mod.PROFILE_ACTION+'papacito');self.assertTrue(mod.selected(10))
         self.assertEqual(h._generateOptions()[-1]['id'],mod.ACTION)
-        h.onOptionSelect(mod.ACTION);self.assertTrue(mod.selected(10))
+        h.onOptionSelect(mod.ACTION);self.assertFalse(mod.selected(10))
         self.assertEqual(h.onOptionSelect('personalFile'),'native:personalFile')
         h._tankman.role='driver';self.assertEqual(h._generateOptions(),['native'])
+
+    def test_profiles_persist_per_commander_without_changing_other_selections(self):
+        mod.STATE={'accounts':{'123':['10','11'], '456':['10']}}
+        man=Obj(invID=10,role='commander')
+        self.assertEqual(mod.selected_profile(10),'legacy')
+        self.assertTrue(mod.assign_profile(man,'papacito'))
+        self.assertEqual(mod.selected_profile(10),'papacito')
+        self.assertEqual(mod.selected_profile(11),'legacy')
+        self.assertEqual(mod.selected_profile(10,'456'),'legacy')
+        self.assertEqual(mod.load_state(),mod.STATE)
+        self.assertTrue(mod.assign_profile(man,None))
+        self.assertFalse(mod.selected(10));self.assertTrue(mod.selected(11))
+        self.assertFalse(mod.assign_profile(man,'../invalid'))
+
+    def test_profile_controls_portrait_and_battle_audio_independently_of_preview(self):
+        man=Obj(invID=10,role='commander')
+        mod.current_crew=lambda:(Obj(intCD=42),[(0,man),(1,Obj(invID=11,role='driver'))])
+        mod.STATE={'accounts':{'123':{'10':'papacito'}}}
+        data=json.loads(self.originals['payload']())
+        self.assertEqual(data['slots'],[0]);self.assertEqual(data['name'],'Papacito')
+        self.assertTrue(data['portrait'].endswith('profiles/papacito/portrait.jpg'))
+        mod.SNAPSHOT=('123',42,[10])
+        mod.SETTINGS['profile']=1
+        self.assertEqual(mod.preview_profile(),'legacy')
+        self.assertEqual(mod.battle_profile(),'papacito')
+        path=mod.sound_file('vo_start_battle.wav',mod.battle_profile())
+        self.assertIn(os.path.join('profiles','papacito','voice'),path)
+        mod.STATE={'accounts':{'123':{'11':'papacito'}}}
+        self.assertIsNone(mod.battle_profile())
+        self.assertEqual(json.loads(self.originals['payload']())['slots'],[])
+
+    def test_papacito_recordings_match_real_event_catalogue_and_missing_clip_falls_back(self):
+        profile=os.path.join(os.path.dirname(__file__),'..','assets','profiles','papacito')
+        with open(os.path.join(profile,'profile.json'),'rb') as stream: manifest=json.load(stream)
+        self.assertEqual(len(manifest['recordings']),7)
+        for row in manifest['recordings']:
+            self.assertEqual(mod.EVENT_FILES[row['event']],row['file'])
+            wav=wave.open(os.path.join(profile,'voice',row['file']),'rb')
+            try:
+                self.assertEqual(wav.getsampwidth(),2)
+                self.assertTrue(0 < wav.getnframes()/float(wav.getframerate()) <= 15)
+            finally: wav.close()
+        mod.ROOT=os.path.abspath(os.path.join(profile,'..','..'))
+        mod.SNAPSHOT=('123',42,[10]);mod.STATE={'accounts':{'123':{'10':'papacito'}}}
+        mod.voice_active=lambda:True
+        mod.SOUND=lambda *args:self.fail('missing clip must keep native voice')
+        manager=Obj(isCategoryEnabled=lambda category:True)
+        self.assertFalse(mod.play_queued(manager,1,'commander_killed'))
+        played=[]
+        mod.SOUND=lambda path, unused, flags:played.append(path) or 1
+        manager.onNotificationBegins=lambda name:None
+        manager.getEventInfo=lambda *args:None
+        manager.playNextQueueEvent=lambda queue:None
+        for row in manifest['recordings']:
+            self.assertTrue(mod.play_queued(manager,1,row['event']))
+            self.assertEqual(os.path.basename(played[-1]),row['file'])
+            mod.cancel_audio(manager)
+
+    def test_profile_change_failure_restores_previous_profile(self):
+        mod.STATE={'accounts':{'123':{'10':'legacy'}}}
+        def fail(): raise IOError('simulated disk failure')
+        mod.save_state=fail
+        self.assertFalse(mod.assign_profile(Obj(invID=10,role='commander'),'papacito'))
+        self.assertEqual(mod.selected_profile(10),'legacy')
+
+    def test_papacito_covers_ricochet_and_non_penetrating_armor_hits(self):
+        mod.ROOT=os.path.abspath(os.path.join(os.path.dirname(__file__),'..','assets'))
+        mod.SNAPSHOT=('123',42,[10]);mod.STATE={'accounts':{'123':{'10':'papacito'}}}
+        mod.voice_active=lambda:True
+        played=[]
+        mod.SOUND=lambda path, unused, flags:played.append(path) or 1
+        manager=Obj(isCategoryEnabled=lambda category:True,onNotificationBegins=lambda name:None,
+                    getEventInfo=lambda *args:None,playNextQueueEvent=lambda queue:None)
+        for event in ['enemy_ricochet_by_player','enemy_no_piercing_by_player',
+                      'enemy_no_hp_damage_at_attempt_by_player',
+                      'frequent_enemy_ricochet_by_player','frequent_enemy_no_piercing_by_player',
+                      'frequent_enemy_no_hp_damage_at_attempt_by_player']:
+            self.assertTrue(mod.play_queued(manager,1,event), event)
+            with open(played[-1],'rb') as stream: actual=stream.read()
+            with open(mod.sound_file('vo_armor_ricochet_by_player.wav','papacito'),'rb') as stream:
+                self.assertEqual(actual,stream.read())
+            mod.cancel_audio(manager)
+
+    def test_return_to_garage_skips_unloaded_presenter_and_refreshes_new_one(self):
+        updates=[]
+        stale=Obj(viewModel=None)
+        live=Obj(viewModel=Obj(_setString=lambda index,data:updates.append((index,data))))
+        mod.PRESENTERS=[stale,live]
+        mod.snapshot_current=lambda:None
+        mod.payload=lambda:'{"slots":[0],"name":"Papacito"}'
+        self.originals['refresh']()
+        self.assertEqual(updates,[(11,mod.payload())])
+        # A temporarily detached presenter may become usable later.
+        stale.viewModel=Obj(_setString=lambda index,data:updates.append((index,data)))
+        self.originals['refresh']()
+        self.assertEqual(len(updates),3)
 
     def test_queue_wrapper_preserves_native_checks_and_fallback(self):
         calls=[]

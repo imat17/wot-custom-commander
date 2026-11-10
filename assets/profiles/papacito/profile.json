@@ -1,0 +1,76 @@
+{
+  "id": "papacito",
+  "name": "Papacito",
+  "portrait": "portrait.jpg",
+  "voice_gain": 0.8,
+  "recordings": [
+    {
+      "source": "papacito_start.mp3",
+      "event": "start_battle",
+      "file": "vo_start_battle.wav",
+      "action": "Debut de bataille",
+      "seconds": 2.273,
+      "source_sha256": "c2a5da854eb243e138dee1ed40ab012fbe31869fed5a23334fe0dd157976d175"
+    },
+    {
+      "source": "papacito_ricochet.mp3",
+      "event": "enemy_ricochet_by_player",
+      "file": "vo_armor_ricochet_by_player.wav",
+      "action": "Ricochet de votre tir",
+      "seconds": 2.038,
+      "source_sha256": "02f54f179fe9f989e0107a7b3b392e358eea07e9f948e2d6838098f7037b21ba",
+      "additional_files": [
+        {
+          "file": "vo_armor_not_pierced_by_player.wav",
+          "events": [
+            "enemy_no_piercing_by_player",
+            "enemy_no_hp_damage_at_attempt_by_player",
+            "frequent_enemy_no_piercing_by_player",
+            "frequent_enemy_no_hp_damage_at_attempt_by_player"
+          ],
+          "action": "Blindage ennemi non perce"
+        }
+      ]
+    },
+    {
+      "source": "papacito_penetration.mp3",
+      "event": "enemy_hp_damaged_by_projectile_by_player",
+      "file": "vo_enemy_hp_damaged_by_projectile_by_player.wav",
+      "action": "Votre tir penetrant",
+      "seconds": 1.724,
+      "source_sha256": "b198044840665cf96bda9be0ee087802d54e71dcaf702e94abc89878d45822a4"
+    },
+    {
+      "source": "papacito_dead.mp3",
+      "event": "vehicle_destroyed",
+      "file": "vo_vehicle_destroyed.wav",
+      "action": "Votre char detruit",
+      "seconds": 1.646,
+      "source_sha256": "22121ebd7679eca66def43a1cc8c291dcf81a84e41b00669fe98f0de7e14f2c8"
+    },
+    {
+      "source": "papacito_destruction.mp3",
+      "event": "enemy_killed_by_player",
+      "file": "vo_enemy_killed_by_player.wav",
+      "action": "Ennemi detruit par vous",
+      "seconds": 1.724,
+      "source_sha256": "9d7585389482e17957e3967c8a15d6256e6e168b2972eac6fc72ad53c81d11a0"
+    },
+    {
+      "source": "papacito_chenilles_fix.mp3",
+      "event": "track_functional",
+      "file": "vo_track_functional.wav",
+      "action": "Chenilles reparees",
+      "seconds": 1.802,
+      "source_sha256": "5019eb66d266f3ff2dfd313e2e1f4844602c5df36f8322d670ba4d5c25123b0f"
+    },
+    {
+      "source": "papacito_chenilles.mp3",
+      "event": "track_destroyed",
+      "file": "vo_track_destroyed.wav",
+      "action": "Chenilles detruites",
+      "seconds": 2.351,
+      "source_sha256": "e4f3c1c759886fa535481337aa37fb9fa84aee5ca2c35f3055daf6698929d33d"
+    }
+  ]
+}

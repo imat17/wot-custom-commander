@@ -1,0 +1,14 @@
+{
+  "version": "0.2.4",
+  "time": "2026-11-10T20:41:44.269636",
+  "tests": {
+    "native_portrait": 6,
+    "core": 14,
+    "image_catalog": "passed"
+  },
+  "regression": "Before: both displayed-state restoration tests failed; after: both pass",
+  "sha256": "c329b977a6ff13fb85dec9554419eeb7b58b36b4d0848496d3f5e256d26c7739",
+  "installed": true,
+  "runtime": "awaiting restart and user activation/deactivation test",
+  "installed_sha256": "c329b977a6ff13fb85dec9554419eeb7b58b36b4d0848496d3f5e256d26c7739"
+}

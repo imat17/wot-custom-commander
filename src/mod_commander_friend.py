@@ -1,20 +1,29 @@
 # coding: utf-8
-"""Commander Friend 0.1.1 -- WoT EU 2.4.1.1, local cosmetic prototype."""
+"""Commander Friend 0.2.4 -- WoT EU 2.4.1.1, local cosmetic profiles."""
 from __future__ import absolute_import
 import json
 import logging
 import os
 import wave
+import weakref
 
 LOG = logging.getLogger('CommanderFriend')
 LINKAGE = 'matisse.commander_friend'
 ACTION = 'commanderFriendToggle'
+PROFILE_ACTION = 'commanderFriendProfile_'
+PROFILE_IDS = ('papacito', 'legacy')
+PROFILE_NAMES = {'papacito': u'Papacito', 'legacy': u'Profil personnel / démonstration'}
 ROOT = os.path.abspath(os.path.join('mods', 'configs', LINKAGE))
 AUDIO_PATH = os.path.join(ROOT, 'native_0.1.1', 'commander_friend_audio.pyd')
 DEFAULTS = {'enabled': True, 'portrait': True, 'voice': True, 'demo': True}
 SETTINGS = dict(DEFAULTS)
+SETTINGS['profile'] = 0
 STATE = {'accounts': {}}
 PRESENTERS = []
+CREW_MODELS = weakref.WeakSet()
+INFO_COMPONENTS = weakref.WeakSet()
+NATIVE_ICON_READY = False
+NATIVE_ICON_WARNED = False
 PATCHES = []
 SUBSCRIPTIONS = []
 API = None
@@ -50,8 +59,29 @@ def account_id():
 
 
 def selected(tankman_id, owner=None):
+    return selected_profile(tankman_id, owner) is not None
+
+
+def selected_profile(tankman_id, owner=None):
     owner = owner or account_id()
-    return bool(owner and str(tankman_id) in STATE['accounts'].get(owner, []))
+    values = STATE['accounts'].get(owner, {}) if owner else {}
+    if isinstance(values, list):
+        return 'legacy' if str(tankman_id) in values else None
+    profile = values.get(str(tankman_id))
+    return profile if profile in PROFILE_IDS else None
+
+
+def preview_profile():
+    return PROFILE_IDS[SETTINGS.get('profile', 0)]
+
+
+def battle_profile():
+    if SNAPSHOT:
+        for key in SNAPSHOT[2]:
+            profile = selected_profile(key, SNAPSHOT[0])
+            if profile:
+                return profile
+    return None
 
 
 def save_state():
@@ -98,16 +128,22 @@ def notice(text):
 
 
 def toggle(tman):
-    owner = account_id()
-    if not owner or not tman or tman.role != 'commander':
+    if not tman:
         return False
-    before = list(STATE['accounts'].get(owner, []))
-    values = list(before)
+    return assign_profile(tman, None if selected(tman.invID) else preview_profile())
+
+
+def assign_profile(tman, profile):
+    owner = account_id()
+    if not owner or not tman or tman.role != 'commander' or (profile is not None and profile not in PROFILE_IDS):
+        return False
+    before = STATE['accounts'].get(owner, {})
+    values = dict((str(key), 'legacy') for key in before) if isinstance(before, list) else dict(before)
     key = str(tman.invID)
-    if key in values:
-        values.remove(key)
+    if profile is None:
+        values.pop(key, None)
     else:
-        values.append(key)
+        values[key] = profile
     STATE['accounts'][owner] = values
     try:
         save_state()
@@ -117,8 +153,8 @@ def toggle(tman):
         notice(u'Chef de char ami : impossible de sauvegarder le choix.')
         return False
     refresh()
-    LOG.info('Commander customization %s', 'enabled' if key in values else 'disabled')
-    notice(u'Personnalisation activée pour ce chef de char.' if key in values else
+    LOG.info('Commander profile: %s', profile or 'disabled')
+    notice(u'Profil %s activé pour ce chef de char.' % PROFILE_NAMES[profile] if profile else
            u'Personnalisation retirée pour ce chef de char.')
     return True
 
@@ -131,7 +167,9 @@ def current_crew():
     return vehicle, list(vehicle.crew)
 
 
-def portrait_url():
+def portrait_url(profile='legacy'):
+    if profile == 'papacito':
+        return 'coui://gui/maps/icons/commander_friend/profiles/papacito/portrait.jpg'
     if SETTINGS.get('demo', True):
         return 'coui://gui/maps/icons/commander_friend/demo.png'
     # A prepared PNG is stored loose in the versioned resource directory.
@@ -145,9 +183,17 @@ def portrait_url():
 def payload():
     vehicle, crew = current_crew()
     slots = []
+    profile = None
     if SETTINGS.get('enabled') and SETTINGS.get('portrait'):
-        slots = [slot for slot, man in crew if man and man.role == 'commander' and selected(man.invID)]
-    return json.dumps({'slots': slots, 'portrait': portrait_url(), 'demo': SETTINGS.get('demo', True)})
+        for slot, man in crew:
+            if man and man.role == 'commander':
+                profile = selected_profile(man.invID)
+                if profile:
+                    if profile != 'papacito' or not NATIVE_ICON_READY:
+                        slots.append(slot)
+                    break
+    return json.dumps({'slots': slots, 'portrait': portrait_url(profile) if profile else '',
+                       'name': PROFILE_NAMES.get(profile, '')})
 
 
 def snapshot_current():
@@ -171,12 +217,55 @@ def refresh(*args):
         snapshot_current()
         data = payload()
         for presenter in list(PRESENTERS):
-            presenter.viewModel._setString(11, data)
+            model = presenter.viewModel
+            if model is not None:
+                model._setString(11, data)
     except Exception:
         LOG.exception('Unable to refresh garage portrait')
+    # Shared garage models may outlive their loading presenter. Update those
+    # models directly, and invalidate the crew array inside a native transaction.
+    garage_count = 0
+    if CREW_MODELS:
+        try:
+            _, crew = current_crew()
+            tankmen = dict((man.invID, man) for _, man in crew if man)
+        except Exception:
+            tankmen = {}
+            LOG.exception('Unable to resolve displayed crew')
+        for model in list(CREW_MODELS):
+            try:
+                with model.transaction() as vm:
+                    entries = vm.getCrew()
+                    changed = False
+                    for entry in entries:
+                        tankman = tankmen.get(entry.getId())
+                        if tankman is not None:
+                            entry.setCrewSkinId(tankman.getExtensionLessIconWithSkin())
+                            entry.setCustomizedSkin(tankman.isInSkin)
+                            entry.setFullName(tankman.getFullUserNameWithSkin())
+                            changed = True
+                    if changed:
+                        entries.invalidate()
+                        garage_count += 1
+            except Exception:
+                LOG.exception('Unable to commit garage portrait update')
+    file_count = 0
+    for component in list(INFO_COMPONENTS):
+        try:
+            parent = component.parent
+            if parent is not None and parent.viewModel is not None:
+                # ComponentBase.refreshView commits the PARENT model, which is
+                # required for changes to reach an already-open personal file.
+                component.refreshView()
+                file_count += 1
+        except Exception:
+            LOG.exception('Unable to commit personal file portrait update')
+    LOG.info('Portrait refresh committed: garage=%d personal_file=%d', garage_count, file_count)
 
 
-def sound_file(filename):
+def sound_file(filename, profile='legacy'):
+    if profile == 'papacito':
+        return os.path.join(ROOT, 'profiles', 'papacito', 'voice', filename)
     folder = 'demo_voice' if SETTINGS.get('demo', True) else 'voice'
     return os.path.join(ROOT, folder, filename)
 
@@ -229,7 +318,7 @@ def play_queued(manager, queue, event_name):
     filename = EVENT_FILES.get(event_name)
     if not filename:
         return False
-    path = sound_file(filename)
+    path = sound_file(filename, battle_profile())
     try:
         stream = wave.open(path, 'rb')
         try:
@@ -240,6 +329,7 @@ def play_queued(manager, queue, event_name):
         return False
     if not play_wav(path):
         return False
+    LOG.info('Voice played: %s (%s)', event_name, battle_profile())
     import BigWorld
     manager.onNotificationBegins(event_name)
     cooldown = manager.getEventInfo(event_name, 'cooldownEvent')
@@ -273,6 +363,57 @@ def patch(cls, name, factory):
     PATCHES.append((cls, name, previous, replacement))
 
 
+def native_portrait_profile(tankman):
+    if not SETTINGS.get('enabled') or not SETTINGS.get('portrait'):
+        return None
+    if tankman.role != 'commander' or selected_profile(tankman.invID) != 'papacito':
+        return None
+    global NATIVE_ICON_READY, NATIVE_ICON_WARNED
+    if not NATIVE_ICON_READY:
+        from gui.impl.gen import R
+        root = R.images.gui.maps.icons.tankmen.icons.big
+        ids = [root.dyn('commander_friend_papacito')(),
+               root.crewSkins.dyn('commander_friend_papacito')()]
+        NATIVE_ICON_READY = all(value is not None and value > 0 for value in ids)
+        if NATIVE_ICON_READY:
+            LOG.info('Native Papacito portrait resources ready')
+        elif not NATIVE_ICON_WARNED:
+            NATIVE_ICON_WARNED = True
+            LOG.warning('Native Papacito portrait resources unavailable; keeping original portrait')
+    return 'papacito' if NATIVE_ICON_READY else None
+
+
+def patch_native_portraits():
+    # These presentation getters are used by BOTH CrewPresenter and the personal
+    # file TankmanInfoComponent. The inventory descriptor and equipped skin stay intact.
+    from gui.shared.gui_items.Tankman import Tankman
+    def icon_factory(original):
+        def icon(self):
+            if native_portrait_profile(self):
+                return 'commander_friend_papacito'
+            return original(self)
+        return icon
+    def name_factory(original):
+        def name(self):
+            if native_portrait_profile(self):
+                return u'Papacito'
+            return original(self)
+        return name
+    patch(Tankman, 'getExtensionLessIconWithSkin', icon_factory)
+    patch(Tankman, 'getFullUserNameWithSkin', name_factory)
+
+
+def patch_personal_file():
+    from gui.impl.lobby.crew.container_vews.common.tankman_info_component import TankmanInfoComponent
+    def fill_factory(original):
+        def fill(self, model):
+            result = original(self, model)
+            INFO_COMPONENTS.add(self)
+            return result
+        return fill
+    patch(TankmanInfoComponent, '_setTankmanInfo', fill_factory)
+
+
 def patch_context_menu():
     from gui.impl.lobby.crew.widget.crew_widget_cm_handlers import CrewContextMenuHandler
     def options_factory(original):
@@ -280,14 +421,21 @@ def patch_context_menu():
             result = original(self, ctx)
             man = getattr(self, '_tankman', None)
             if man and man.role == 'commander' and account_id():
-                label = u'Retirer la personnalisation ami' if selected(man.invID) else u'Activer la personnalisation ami'
-                result.append(self._makeItem(ACTION, label))
+                active = selected_profile(man.invID)
+                for profile in PROFILE_IDS:
+                    label = u'Utiliser %s%s' % (PROFILE_NAMES[profile], u' (actif)' if active == profile else u'')
+                    result.append(self._makeItem(PROFILE_ACTION + profile, label))
+                if active:
+                    result.append(self._makeItem(ACTION, u'Retirer la personnalisation'))
             return result
         return options
     def select_factory(original):
         def on_select(self, option):
+            if option in [PROFILE_ACTION + profile for profile in PROFILE_IDS]:
+                assign_profile(getattr(self, '_tankman', None), option[len(PROFILE_ACTION):])
+                return
             if option == ACTION:
-                toggle(getattr(self, '_tankman', None))
+                assign_profile(getattr(self, '_tankman', None), None)
                 return
             return original(self, option)
         return on_select
@@ -308,6 +456,7 @@ def patch_portraits():
             original(self)
             gf_mod_inject(self, 'CommanderFriend', scripts=['coui://gui/gameface/mods/commander_friend/portrait.js'])
             self._addStringProperty('commanderFriendJson', '{}')
+            CREW_MODELS.add(self)
         return initialize
     def load_factory(original):
         def loaded(self, *args, **kwargs):
@@ -320,7 +469,9 @@ def patch_portraits():
     def update_factory(original):
         def updated(self, *args, **kwargs):
             result = original(self, *args, **kwargs)
-            self.viewModel._setString(11, payload())
+            model = self.viewModel
+            if model is not None:
+                model._setString(11, payload())
             snapshot_current()
             return result
         return updated
@@ -389,6 +540,8 @@ def settings_changed(linkage, values):
     if linkage != LINKAGE:
         return
     SETTINGS.update(dict((key, bool(values.get(key, DEFAULTS[key]))) for key in DEFAULTS))
+    index = values.get('profile', SETTINGS.get('profile', 0))
+    SETTINGS['profile'] = index if isinstance(index, (int, long)) and 0 <= index < len(PROFILE_IDS) else 0
     if SOUND is not None:
         SOUND(None, None, 0)
     refresh()
@@ -398,10 +551,10 @@ def button_clicked(linkage, name, value):
     if linkage != LINKAGE:
         return
     if name == 'preview':
-        if not play_wav(sound_file(EVENT_FILES.get('start_battle', 'vo_start_battle.wav'))):
+        if not play_wav(sound_file(EVENT_FILES.get('start_battle', 'vo_start_battle.wav'), preview_profile())):
             notice(u'Lecture impossible : vérifiez le fichier vocal et le journal CommanderFriend.')
         else:
-            LOG.info('Voice preview started')
+            LOG.info('Voice preview started: %s', preview_profile())
     elif name == 'folder':
         if not os.path.isdir(ROOT):
             os.makedirs(ROOT)
@@ -419,7 +572,13 @@ def button_clicked(linkage, name, value):
         _, crew = current_crew()
         for _, man in crew:
             if man and man.role == 'commander':
-                toggle(man)
+                assign_profile(man, preview_profile())
+                break
+    elif name == 'removeCurrent':
+        _, crew = current_crew()
+        for _, man in crew:
+            if man and man.role == 'commander':
+                assign_profile(man, None)
                 break
 
 
@@ -432,22 +591,25 @@ def register_settings(attempt=0):
         t = templates
         form = {
             'modDisplayName': u'Chef de char ami', 'modAuthor': 'Matisse',
-            'modVersion': '0.1.1 alpha', 'settingsVersion': 1,
+            'modVersion': '0.2.4 alpha', 'settingsVersion': 2,
             'enabled': SETTINGS['enabled'],
             'column1': [
-                t.createLabel(u'Clic droit sur un chef de char : activer ou retirer la personnalisation.'),
+                t.createLabel(u'Clic droit sur un chef de char : choisissez Papacito ou le profil personnel.'),
+                t.createDropdown(u'Profil à écouter / appliquer', 'profile',
+                                 t.generateOptions([PROFILE_NAMES[key] for key in PROFILE_IDS]), SETTINGS.get('profile', 0)),
                 t.createCheckbox(u'Portrait dans le garage', 'portrait', SETTINGS['portrait']),
                 t.createCheckbox(u'Répliques personnalisées', 'voice', SETTINGS['voice']),
-                t.createCheckbox(u'Utiliser les médias de démonstration', 'demo', SETTINGS['demo']),
-                t.createLabel(u'Démo : silhouette et voix synthétique. Mode personnel : vos fichiers.'),
+                t.createCheckbox(u'Profil personnel : médias de démonstration', 'demo', SETTINGS['demo']),
+                t.createLabel(u'Papacito utilise toujours sa photo et ses sept enregistrements.'),
             ],
             'column2': [
                 t.createActionButton('preview', buttonText=u'Écouter', label=u'Réplique de départ'),
                 t.createActionButton('folder', buttonText=u'Ouvrir', label=u'Dossier des enregistrements'),
                 t.createActionButton('portraitFolder', buttonText=u'Ouvrir', label=u'Dossier de la photo : friend.png'),
                 t.createActionButton('catalogue', buttonText=u'Consulter', label=u'Liste des répliques à enregistrer'),
-                t.createActionButton('toggleCurrent', buttonText=u'Activer / retirer', label=u'Chef du char sélectionné'),
-                t.createLabel(u'Prototype : portrait du garage uniquement. Audio WAV via Windows ; volume du mélangeur Windows.'),
+                t.createActionButton('toggleCurrent', buttonText=u'Appliquer', label=u'Profil choisi sur le chef du char sélectionné'),
+                t.createActionButton('removeCurrent', buttonText=u'Retirer', label=u'Personnalisation du chef sélectionné'),
+                t.createLabel(u'Papacito : portrait et nom dans le garage et la fiche. Volume via le mélangeur Windows.'),
             ],
         }
         values = API.setModTemplate(LINKAGE, form, settings_changed, button_clicked)
@@ -467,6 +629,8 @@ def init():
         return
     try:
         STATE = load_state()
+        patch_native_portraits()
+        patch_personal_file()
         patch_context_menu()
         patch_portraits()
         patch_voice()
@@ -479,7 +643,7 @@ def init():
             SUBSCRIPTIONS.append((event, callback))
         STARTED = True
         register_settings()
-        LOG.info('0.1.1 alpha initialized')
+        LOG.info('0.2.4 alpha initialized')
     except Exception:
         LOG.exception('Initialization failed; rolling back hooks')
         fini()
@@ -504,5 +668,7 @@ def fini():
             setattr(cls, name, original)
     del PATCHES[:]
     del PRESENTERS[:]
+    CREW_MODELS.clear()
+    INFO_COMPONENTS.clear()
     SNAPSHOT = None
     STARTED = False

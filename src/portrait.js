@@ -28,7 +28,7 @@
     var state = readState();
     var targets = new Set();
     var url = state && state.portrait;
-    if (url && /^coui:\/\/gui\/maps\/icons\/commander_friend\/(demo|friend)\.png$/.test(url)) {
+    if (url && /^coui:\/\/gui\/maps\/icons\/commander_friend\/(?:(demo|friend)\.png|profiles\/papacito\/portrait\.jpg)$/.test(url)) {
       document.querySelectorAll('[class*="CrewWidget_"]').forEach(function (root) {
         var slots = Array.from(root.querySelectorAll('div')).filter(function (node) {
           return /(?:^|\s)Slot_[0-9a-f]+(?:\s|$)/.test(node.className);

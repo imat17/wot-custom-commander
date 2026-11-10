@@ -1,0 +1,11 @@
+{
+  "version": "0.2.3",
+  "time": "2026-11-10T18:53:25.048672",
+  "root_cause": "Portrait files were present but their Image entries in gui/gen_resources were absent",
+  "package_registration_test": "failed for 0.2.2; passed for 0.2.3",
+  "schema_source": "installed game gui/gen_resources/images.json",
+  "sha256": "f378c9f600bc7c5faa6c37f2d0f9e56df03e8f380e7b721355fb54aad94dd77a",
+  "runtime": "User confirmed portrait displays; stale display on deactivation reported",
+  "installed": true,
+  "installed_sha256": "f378c9f600bc7c5faa6c37f2d0f9e56df03e8f380e7b721355fb54aad94dd77a"
+}

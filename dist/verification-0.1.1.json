@@ -1,0 +1,13 @@
+{
+  "version": "0.1.1",
+  "time": "2026-11-10T00:12:50.255626",
+  "root_cause": "_ctypes absent in WoT, broke save_state and play_wav",
+  "tests": {
+    "core": 8,
+    "game_dependencies_with_copied_game_python_dll": 4,
+    "portrait": "pass"
+  },
+  "in_game_validation": "pending restart and user actions",
+  "installed_mod_sha256": "6044cbd7d6a050d536a7be5282e31c71fdae1df68ea9dba4d44a9a5f58b1a15e",
+  "installed_audio_sha256": "eb2f56902737454055a42d8f9323030e4e51cfa5ca5c2eccd36b3d040cd5ffce"
+}
