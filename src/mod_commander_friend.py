@@ -150,7 +150,7 @@ def assign_profile(tman, profile):
     except Exception:
         STATE['accounts'][owner] = before
         LOG.exception('Cannot persist selection')
-        notice(u'Chef de char ami : impossible de sauvegarder le choix.')
+        notice(u'Custom Commander : impossible de sauvegarder le choix.')
         return False
     refresh()
     LOG.info('Commander profile: %s', profile or 'disabled')
@@ -590,7 +590,7 @@ def register_settings(attempt=0):
         API, TEMPLATES = g_modsSettingsApi, templates
         t = templates
         form = {
-            'modDisplayName': u'Chef de char ami', 'modAuthor': 'Matisse',
+            'modDisplayName': u'Custom Commander', 'modAuthor': 'Matisse',
             'modVersion': '0.2.4 alpha', 'settingsVersion': 2,
             'enabled': SETTINGS['enabled'],
             'column1': [

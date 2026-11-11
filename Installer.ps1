@@ -7,12 +7,13 @@ if(Get-Process -Name WorldOfTanks -ErrorAction SilentlyContinue) { throw 'Fermez
 $modDir=Join-Path $game 'mods\2.4.1.1'
 if(-not (Get-ChildItem -LiteralPath $modDir -Filter 'aslain.modmenu_*.wotmod')) { throw 'Mod Menu Aslain requis.' }
 if(-not (Get-ChildItem -LiteralPath $modDir -Recurse -Filter 'net.openwg.gameface_*.wotmod')) { throw 'OpenWG Gameface requis.' }
-$source=Join-Path $PSScriptRoot 'dist\matisse.commander_friend_0.2.4.wotmod'
+$source=Join-Path $PSScriptRoot 'dist\matisse.commander_friend_0.2.5.wotmod'
 if(-not (Test-Path -LiteralPath $source)) { throw 'Le paquet compilé est absent.' }
 $nativeSource=Join-Path $PSScriptRoot 'dist\native_0.1.1\commander_friend_audio.pyd'
 if(-not (Test-Path -LiteralPath $nativeSource)) { throw 'Le lecteur audio est absent.' }
-$dest=Join-Path $modDir 'matisse.commander_friend_0.2.4.wotmod'
+$dest=Join-Path $modDir 'matisse.commander_friend_0.2.5.wotmod'
 $knownVersions=@{
+ 'matisse.commander_friend_0.2.4.wotmod'='C329B977A6FF13FB85DEC9554419EEB7B58B36B4D0848496D3F5E256D26C7739'
  'matisse.commander_friend_0.2.3.wotmod'='F378C9F600BC7C5FAA6C37F2D0F9E56DF03E8F380E7B721355FB54AAD94DD77A'
  'matisse.commander_friend_0.2.2.wotmod'='19911DC9FC3001F308BEE66E2ACD7759881D4E2378CD14D57A754A91CE74F926'
  'matisse.commander_friend_0.2.1.wotmod'='C0FF191EC01E7B7026A68E06308A039BA9C09D1826D039FB5FCCA1F19C7DFE53'

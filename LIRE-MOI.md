@@ -1,4 +1,4 @@
-# Chef de char ami — version 0.2.4 alpha
+# Custom Commander — version 0.2.5 alpha
 
 Conçu pour votre installation **World of Tanks EU 2.4.1.1**, avec Aslain Mod Menu et OpenWG Gameface déjà présents. Tests automatisés hors jeu ; le résultat visuel et sonore doit encore être vérifié dans le jeu. Cette alpha ne remplace aucun fichier d’un autre mod, notamment Classic Tank Carousel.
 
@@ -7,7 +7,7 @@ Conçu pour votre installation **World of Tanks EU 2.4.1.1**, avec Aslain Mod Me
 1. Redémarrez le jeu après installation.
 2. Faites un clic droit sur le chef de char dans le panneau d’équipage et choisissez **Utiliser Papacito** (ou **Utiliser Profil personnel / démonstration**).
 3. La photo du profil choisi doit remplacer son portrait dans ce panneau. Les autres équipiers conservent leur apparence. Pour Papacito, la fiche personnelle utilise aussi le portrait et le nom locaux. Le profil personnel / démonstration conserve son affichage expérimental dans le garage.
-4. Dans le menu des mods du garage, ouvrez **Chef de char ami**. Choisissez **Papacito** dans **Profil à écouter / appliquer**, puis cliquez sur **Écouter** pour sa réplique de départ. Le profil personnel utilise les médias de démonstration lorsque sa case dédiée est cochée.
+4. Dans le menu des mods du garage, ouvrez **Custom Commander**. Choisissez **Papacito** dans **Profil à écouter / appliquer**, puis cliquez sur **Écouter** pour sa réplique de départ. Le profil personnel utilise les médias de démonstration lorsque sa case dédiée est cochée.
 5. Refaire un clic droit puis **Retirer la personnalisation** rétablit le portrait d’origine et les prochaines annonces vocales d’origine. Le menu des réglages propose aussi **Appliquer** et **Retirer** pour le chef du char sélectionné. Un profil déjà actif reste actif si vous le choisissez une deuxième fois.
 
 Les sélections sont enregistrées localement par compte et par identifiant de membre d’équipage. Il n’y a aucune requête de modification d’identité, de compétence ou d’apparence vers le serveur. L’interrupteur général masque les personnalisations sans effacer les sélections.
@@ -61,7 +61,7 @@ L’alpha n’est pas ajoutée à la réinstallation automatique d’Aslain : ce
 
 ## Validation restante
 
-- Apparition du menu **Chef de char ami** et du choix au clic droit.
+- Apparition du menu **Custom Commander** et du choix au clic droit.
 - Activation/désactivation du portrait, changement de char puis redémarrage.
 - Écoute de démonstration et lecture en bataille sur un chef activé.
 - Absence de changement sur un chef non activé et retour aux voix natives si un WAV manque.
@@ -84,7 +84,7 @@ Papacito fournit maintenant son nom et sa photo aux fonctions de présentation u
 
 ## Correctif 0.2.3 — déclaration des ressources
 
-Le fichier `gui/gen_resources/matisse.commander_friend.json` déclare les deux identifiants de portrait, leur type Image et leur chemin img://, selon le format du catalogue livré avec WoT 2.4.1.1. Cette déclaration manquait en 0.2.2, et le journal indiquait que les ressources natives étaient indisponibles. Un contrôle du paquet vérifie désormais les identifiants, les chemins et les octets de la photo. Le volume reste à 80 %.
+Le fichier `gui/gen_resources/matisse.commander_friend.json` déclare les deux identifiants de portrait, leur type Image et leur chemin img://, selon le format du catalogue livré avec WoT 2.4.1.1. Cette déclaration manquait en 0.2.2, et le journal indiquait que les ressources natives étaient indisponibles. Un contrôle du paquet vérifie désormais les identifiants, les chemins et les octets de la photo. Le volume est désormais à 64 % du niveau d’origine.
 
 ## Correctif 0.2.4 — retour au portrait original
 

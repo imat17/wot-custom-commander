@@ -6,9 +6,9 @@ if sys.version_info[:2] != (2, 7):
 root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 dist = os.path.join(root, 'dist')
 if not os.path.isdir(dist): os.makedirs(dist)
-package = os.path.join(dist, 'matisse.commander_friend_0.2.4.wotmod')
+package = os.path.join(dist, 'matisse.commander_friend_0.2.5.wotmod')
 with zipfile.ZipFile(package, 'w', zipfile.ZIP_STORED) as z:
-    z.writestr('meta.xml', '<root><id>matisse.commander_friend</id><version>0.2.4</version><name>Chef de char ami</name><description>Local commander portrait and voice prototype for WoT EU 2.4.1.1</description></root>')
+    z.writestr('meta.xml', '<root><id>matisse.commander_friend</id><version>0.2.5</version><name>Custom Commander</name><description>Local commander portrait and voice prototype for WoT EU 2.4.1.1</description></root>')
     for name in ['mod_commander_friend', 'commander_friend_catalog']:
         src = os.path.join(root,'src',name+'.py')
         dest = os.path.join(dist,name+'.pyc')
