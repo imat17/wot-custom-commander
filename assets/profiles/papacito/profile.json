@@ -2,7 +2,7 @@
   "id": "papacito",
   "name": "Papacito",
   "portrait": "portrait.jpg",
-  "voice_gain": 0.8,
+  "voice_gain": 0.64,
   "recordings": [
     {
       "source": "papacito_start.mp3",

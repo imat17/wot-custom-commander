@@ -10,7 +10,7 @@ import imageio_ffmpeg
 root = Path(__file__).resolve().parents[1]
 source = Path('C:/Users/Matisse/Downloads')
 profile = root / 'assets/profiles/papacito'
-voice_gain = 0.8
+voice_gain = 0.64
 (profile / 'voice').mkdir(parents=True, exist_ok=True)
 mapping = [
     ('papacito_start.mp3', 'start_battle', 'vo_start_battle.wav', 'Debut de bataille'),
@@ -44,3 +44,4 @@ next(row for row in rows if row['source'] == 'papacito_ricochet.mp3')['additiona
 (profile / 'profile.json').write_text(json.dumps(dict(id='papacito', name='Papacito',
     portrait='portrait.jpg', voice_gain=voice_gain, recordings=rows), indent=2), encoding='utf-8')
 print(json.dumps(rows, indent=2))
+
