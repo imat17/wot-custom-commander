@@ -1,7 +1,7 @@
 (function () {
   'use strict';
-  if (window.__commanderFriend) return;
-  window.__commanderFriend = true;
+  if (window.__customCommander) return;
+  window.__customCommander = true;
   var dirty = false;
   var saved = new Map();
   function readState() {
@@ -9,7 +9,7 @@
     var ids = window.subViews.ids();
     for (var id of ids) {
       var view = window.subViews.get(id);
-      var raw = view && view.model && view.model.commanderFriendJson;
+      var raw = view && view.model && view.model.customCommanderJson;
       if (raw && typeof raw === 'object' && 'value' in raw) raw = raw.value;
       if (typeof raw === 'string') {
         try { return JSON.parse(raw); } catch (e) { return null; }
@@ -21,14 +21,14 @@
     if (node.style.getPropertyValue('background-image') === old.applied) {
       node.style.setProperty('background-image', old.image, old.priority);
     }
-    node.removeAttribute('data-commander-friend');
+    node.removeAttribute('data-custom-commander');
   }
   function render() {
     dirty = false;
     var state = readState();
     var targets = new Set();
     var url = state && state.portrait;
-    if (url && /^coui:\/\/gui\/maps\/icons\/commander_friend\/(?:(demo|friend)\.png|profiles\/papacito\/portrait\.jpg)$/.test(url)) {
+    if (url && /^coui:\/\/gui\/maps\/icons\/custom_commander\/(?:(demo|friend)\.png|profiles\/papacito\/portrait\.jpg)$/.test(url)) {
       document.querySelectorAll('[class*="CrewWidget_"]').forEach(function (root) {
         var slots = Array.from(root.querySelectorAll('div')).filter(function (node) {
           return /(?:^|\s)Slot_[0-9a-f]+(?:\s|$)/.test(node.className);
@@ -49,7 +49,7 @@
           if (picture.style.getPropertyValue('background-image') !== value) {
             picture.style.setProperty('background-image', value, 'important');
           }
-          picture.setAttribute('data-commander-friend', 'true');
+          picture.setAttribute('data-custom-commander', 'true');
         });
       });
     }

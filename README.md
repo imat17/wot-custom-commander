@@ -2,7 +2,7 @@
 
 Custom Commander est un mod pour **World of Tanks** qui permet de personnaliser localement le portrait et certaines annonces vocales d’un chef de char. Il propose un profil Papacito et un profil personnel / de démonstration.
 
-> **Version 0.2.5 alpha** : prévue pour World of Tanks EU **2.4.1.1**, sous Windows. Le comportement visuel et sonore doit encore être vérifié en jeu, notamment après une mise à jour du client.
+> **Version 0.3.0 alpha** : prévue pour World of Tanks EU **2.4.1.1**, sous Windows. Le comportement visuel et sonore doit encore être vérifié en jeu, notamment après une mise à jour du client.
 
 ## Fonctionnalités
 
@@ -17,7 +17,7 @@ Les choix sont enregistrés localement par compte et par membre d’équipage. L
 
 **Prérequis :** World of Tanks EU 2.4.1.1, **Aslain Mod Menu** et **OpenWG Gameface** installés. Fermez le jeu avant toute installation.
 
-1. Téléchargez [l’archive Custom Commander 0.2.5 alpha](dist/Custom-Commander-0.2.5-alpha.zip) depuis GitHub, puis décompressez-la entièrement.
+1. Téléchargez [l’archive Custom Commander 0.3.0 alpha](dist/Custom-Commander-0.3.0-alpha.zip) depuis GitHub, puis décompressez-la entièrement.
 2. Ouvrez PowerShell dans le dossier décompressé.
 3. Lancez la commande suivante en remplaçant le chemin par celui de votre installation du jeu :
 
@@ -25,7 +25,7 @@ Les choix sont enregistrés localement par compte et par membre d’équipage. L
    powershell -ExecutionPolicy Bypass -File .\Installer.ps1 -GameRoot "G:\Jeux\World_of_Tanks_EU"
    ```
 
-L’installateur vérifie la version et les dépendances, et sauvegarde les fichiers du profil qu’il remplace. Une version inconnue du mod peut nécessiter une intervention manuelle.
+L’installateur vérifie la version et les dépendances, et sauvegarde les fichiers du profil qu’il remplace. Une version inconnue du mod peut nécessiter une intervention manuelle. La version 0.3.0 utilise une nouvelle configuration : les anciennes sélections et les médias personnels ne sont pas repris automatiquement.
 
 ## Utilisation
 
@@ -40,7 +40,7 @@ Le profil Papacito comprend sept répliques pour le départ, les tirs, les destr
 
 Dans les réglages, ouvrez **Dossier de la photo**, ajoutez une image carrée PNG nommée `friend.png`, puis désactivez les médias de démonstration et appliquez. Un redémarrage du jeu peut être nécessaire.
 
-Placez vos enregistrements dans `mods/configs/matisse.commander_friend/voice/`. Ils doivent être au format **WAV PCM 16 bits**, mono ou stéréo, et durer entre zéro et 15 secondes. Le catalogue et les noms des fichiers sont décrits dans [LIRE-MOI.md](LIRE-MOI.md).
+Placez vos enregistrements dans `mods/configs/custom_commander/voice/`. Ils doivent être au format **WAV PCM 16 bits**, mono ou stéréo, et durer entre zéro et 15 secondes. Le catalogue et les noms des fichiers sont décrits dans [LIRE-MOI.md](LIRE-MOI.md).
 
 ## Limites et désinstallation
 

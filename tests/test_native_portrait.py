@@ -25,7 +25,7 @@ class NativePortrait(unittest.TestCase):
 
     def test_native_portrait_is_selected_and_restored_per_commander(self):
         commander = self.Tankman()
-        self.assertEqual(commander.getExtensionLessIconWithSkin(), 'commander_friend_papacito')
+        self.assertEqual(commander.getExtensionLessIconWithSkin(), 'custom_commander_papacito')
         self.assertEqual(commander.getFullUserNameWithSkin(), 'Papacito')
         other = self.Tankman(); other.invID = 11
         self.assertEqual(other.getExtensionLessIconWithSkin(), 'original_crew_icon')
@@ -48,7 +48,7 @@ class NativePortrait(unittest.TestCase):
         commander=self.Tankman()
         for equipped in (False, True):
             commander.isInSkin=equipped
-            self.assertEqual(commander.getExtensionLessIconWithSkin(),'commander_friend_papacito')
+            self.assertEqual(commander.getExtensionLessIconWithSkin(),'custom_commander_papacito')
             self.assertEqual(commander.isInSkin,equipped)
 
     def test_open_personal_file_refreshes_on_deactivation(self):
@@ -68,7 +68,7 @@ class NativePortrait(unittest.TestCase):
         module_at('gui.impl.lobby.crew.container_vews.common.tankman_info_component').TankmanInfoComponent=Info
         mod.patch_personal_file()
         component=Info();component.refreshView()
-        self.assertEqual(component.viewModel.icon,'commander_friend_papacito')
+        self.assertEqual(component.viewModel.icon,'custom_commander_papacito')
         mod.STATE={'accounts':{'123':{}}}
         mod.PRESENTERS=[];mod.snapshot_current=lambda:None;mod.payload=lambda:'{}'
         self.originals['refresh']()
@@ -79,7 +79,7 @@ class NativePortrait(unittest.TestCase):
     def test_cached_garage_model_refreshes_even_without_its_original_presenter(self):
         commander=self.Tankman()
         class Row(object):
-            icon='commander_friend_papacito'
+            icon='custom_commander_papacito'
             name='Papacito'
             skin=False
             def getId(self):return 10
@@ -90,7 +90,7 @@ class NativePortrait(unittest.TestCase):
             invalidated=False
             def invalidate(self):self.invalidated=True
         class Model(object):
-            def __init__(self):self.crew=Crew([Row()]);self.rendered=('commander_friend_papacito','Papacito')
+            def __init__(self):self.crew=Crew([Row()]);self.rendered=('custom_commander_papacito','Papacito')
             def getCrew(self):return self.crew
             def transaction(self):return self
             def __enter__(self):return self
@@ -106,7 +106,7 @@ class NativePortrait(unittest.TestCase):
         self.assertEqual(model.rendered,('original_crew_icon','Original Name'))
         mod.STATE={'accounts':{'123':{'10':'papacito'}}}
         self.originals['refresh']()
-        self.assertEqual(model.rendered,('commander_friend_papacito','Papacito'))
+        self.assertEqual(model.rendered,('custom_commander_papacito','Papacito'))
         mod.SETTINGS['portrait']=False
         self.originals['refresh']()
         self.assertEqual(model.rendered,('original_crew_icon','Original Name'))

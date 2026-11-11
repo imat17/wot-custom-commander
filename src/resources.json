@@ -1,12 +1,12 @@
 [
   {
     "type": "Image",
-    "id": "R.images.gui.maps.icons.tankmen.icons.big.commander_friend_papacito",
-    "path": "img://gui/maps/icons/tankmen/icons/big/commander_friend_papacito.jpg"
+    "id": "R.images.gui.maps.icons.tankmen.icons.big.custom_commander_papacito",
+    "path": "img://gui/maps/icons/tankmen/icons/big/custom_commander_papacito.jpg"
   },
   {
     "type": "Image",
-    "id": "R.images.gui.maps.icons.tankmen.icons.big.crewSkins.commander_friend_papacito",
-    "path": "img://gui/maps/icons/tankmen/icons/big/crewSkins/commander_friend_papacito.jpg"
+    "id": "R.images.gui.maps.icons.tankmen.icons.big.crewSkins.custom_commander_papacito",
+    "path": "img://gui/maps/icons/tankmen/icons/big/crewSkins/custom_commander_papacito.jpg"
   }
 ]

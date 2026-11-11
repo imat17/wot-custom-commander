@@ -31,7 +31,7 @@ static PyMethodDef methods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC initcommander_friend_audio(void)
+PyMODINIT_FUNC initcustom_commander_audio(void)
 {
-    Py_InitModule3("commander_friend_audio", methods, "Commander Friend Windows audio");
+    Py_InitModule3("custom_commander_audio", methods, "Custom Commander Windows audio");
 }

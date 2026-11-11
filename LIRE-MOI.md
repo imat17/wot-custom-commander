@@ -1,4 +1,4 @@
-# Custom Commander — version 0.2.5 alpha
+# Custom Commander — version 0.3.0 alpha
 
 Conçu pour votre installation **World of Tanks EU 2.4.1.1**, avec Aslain Mod Menu et OpenWG Gameface déjà présents. Tests automatisés hors jeu ; le résultat visuel et sonore doit encore être vérifié dans le jeu. Cette alpha ne remplace aucun fichier d’un autre mod, notamment Classic Tank Carousel.
 
@@ -26,7 +26,7 @@ Clic droit sur un chef de char dans le garage → **Utiliser Papacito**. Le nom 
 | papacito_chenilles.mp3 | Vos chenilles détruites |
 | papacito_chenilles_fix.mp3 | Vos chenilles réparées |
 
-Les sept répliques sont installées sous huit fichiers WAV (la réplique de ricochet est aussi utilisée pour le blindage non percé) dans `mods/configs/matisse.commander_friend/profiles/papacito/voice/`. Les autres événements conservent la voix du jeu. Les correspondances et les durées figurent aussi dans `profiles/papacito/profile.json`. Les anciennes sélections restent associées au profil personnel ; aucune activation automatique de Papacito.
+Les sept répliques sont installées sous huit fichiers WAV (la réplique de ricochet est aussi utilisée pour le blindage non percé) dans `mods/configs/custom_commander/profiles/papacito/voice/`. Les autres événements conservent la voix du jeu. Les correspondances et les durées figurent aussi dans `profiles/papacito/profile.json`. La version 0.3.0 utilise une nouvelle configuration : les anciennes sélections et les médias personnels ne sont pas repris automatiquement. Aucune activation automatique de Papacito.
 
 ## Six enregistrements pour commencer
 
@@ -39,13 +39,13 @@ Les sept répliques sont installées sous huit fichiers WAV (la réplique de ric
 | Chenilles cassées | `vo_track_destroyed.wav` | On est immobilisés ! |
 | Chenilles réparées | `vo_track_functional.wav` | On peut repartir ! |
 
-Déposez-les dans `G:/Jeux/World_of_Tanks_EU/mods/configs/matisse.commander_friend/voice/` : **WAV PCM 16 bits, mono ou stéréo, durée supérieure à zéro et au maximum 15 secondes**. Les fichiers manquants ou invalides laissent passer la voix native. Vous pouvez enregistrer vos propres phrases ; il ne faut pas recopier un texte officiel.
+Déposez-les dans `G:/Jeux/World_of_Tanks_EU/mods/configs/custom_commander/voice/` : **WAV PCM 16 bits, mono ou stéréo, durée supérieure à zéro et au maximum 15 secondes**. Les fichiers manquants ou invalides laissent passer la voix native. Vous pouvez enregistrer vos propres phrases ; il ne faut pas recopier un texte officiel.
 
 Le bouton **Liste des répliques à enregistrer** ouvre le catalogue complet. Il contient 392 entrées des cinq tables de notifications installées, dont 316 vocales et 295 noms de fichiers distincts. Ce nombre englobe les communications et les modes spéciaux ; vous n’avez pas besoin de tous les enregistrer. Les descriptions de certains modes sont encore à confirmer. Les variantes parlées à l’intérieur des banques Wwise et les sons extérieurs à ces tables ne sont pas inventoriés.
 
 ## Votre photo
 
-Dans les réglages, ouvrez **Dossier de la photo**, placez-y un portrait PNG nommé `friend.png`, puis désactivez **Utiliser les médias de démonstration** et appliquez. Redémarrez le client après avoir ajouté ou remplacé l’image si elle ne se recharge pas. Le fichier se trouve dans `res_mods/2.4.1.1/gui/maps/icons/commander_friend/friend.png`. Une image carrée est préférable. Cette version conserve deux profils distincts : Papacito et le profil personnel / démonstration. Chaque chef activé conserve le profil que vous lui avez attribué. La photo friend.png appartient uniquement au profil personnel.
+Dans les réglages, ouvrez **Dossier de la photo**, placez-y un portrait PNG nommé `friend.png`, puis désactivez **Utiliser les médias de démonstration** et appliquez. Redémarrez le client après avoir ajouté ou remplacé l’image si elle ne se recharge pas. Le fichier se trouve dans `res_mods/2.4.1.1/gui/maps/icons/custom_commander/friend.png`. Une image carrée est préférable. Cette version conserve deux profils distincts : Papacito et le profil personnel / démonstration. Chaque chef activé conserve le profil que vous lui avez attribué. La photo friend.png appartient uniquement au profil personnel.
 
 ## Audio de cette alpha
 
@@ -66,7 +66,7 @@ L’alpha n’est pas ajoutée à la réinstallation automatique d’Aslain : ce
 - Écoute de démonstration et lecture en bataille sur un chef activé.
 - Absence de changement sur un chef non activé et retour aux voix natives si un WAV manque.
 
-Les erreurs éventuelles sont consignées dans le journal du jeu sous `CommanderFriend`. Le développement n’a ni lancé une bataille ni contrôlé votre compte.
+Les erreurs éventuelles sont consignées dans le journal du jeu sous `CustomCommander`. Le développement n’a ni lancé une bataille ni contrôlé votre compte.
 
 ## Correctif 0.1.1
 
@@ -74,7 +74,7 @@ Les deux actions échouaient dans le jeu parce que `_ctypes` était absent : le 
 
 ## Correctif 0.2.1
 
-La réplique de ricochet couvre aussi les notifications de blindage non percé, y compris leurs variantes répétées. Les événements sans dégâts liés uniquement à un module ou à une explosion gardent leur son d’origine. Le retour au garage ignore désormais les panneaux d’équipage temporairement sans modèle pour permettre au panneau actif de recevoir le portrait. Chaque réplique personnalisée lancée est identifiée dans le journal par `CommanderFriend` et `Voice played`. Le journal confirme la demande de lecture, pas le son effectivement entendu.
+La réplique de ricochet couvre aussi les notifications de blindage non percé, y compris leurs variantes répétées. Les événements sans dégâts liés uniquement à un module ou à une explosion gardent leur son d’origine. Le retour au garage ignore désormais les panneaux d’équipage temporairement sans modèle pour permettre au panneau actif de recevoir le portrait. Chaque réplique personnalisée lancée est identifiée dans le journal par `CustomCommander` et `Voice played`. Le journal confirme la demande de lecture, pas le son effectivement entendu.
 
 Les répliques Papacito sont préparées à 80 % de leur amplitude initiale (baisse demandée de 20 %), sans modification de durée. Les MP3 originaux restent inchangés.
 
@@ -84,7 +84,7 @@ Papacito fournit maintenant son nom et sa photo aux fonctions de présentation u
 
 ## Correctif 0.2.3 — déclaration des ressources
 
-Le fichier `gui/gen_resources/matisse.commander_friend.json` déclare les deux identifiants de portrait, leur type Image et leur chemin img://, selon le format du catalogue livré avec WoT 2.4.1.1. Cette déclaration manquait en 0.2.2, et le journal indiquait que les ressources natives étaient indisponibles. Un contrôle du paquet vérifie désormais les identifiants, les chemins et les octets de la photo. Le volume est désormais à 64 % du niveau d’origine.
+Le fichier `gui/gen_resources/custom_commander.json` déclare les deux identifiants de portrait, leur type Image et leur chemin img://, selon le format du catalogue livré avec WoT 2.4.1.1. Cette déclaration manquait en 0.2.2, et le journal indiquait que les ressources natives étaient indisponibles. Un contrôle du paquet vérifie désormais les identifiants, les chemins et les octets de la photo. Le volume est désormais à 64 % du niveau d’origine.
 
 ## Correctif 0.2.4 — retour au portrait original
 

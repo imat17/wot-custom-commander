@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 import os, sys, unittest, tempfile, shutil, wave, types, json
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
-import mod_commander_friend as mod
+import mod_custom_commander as mod
 
 class Obj(object):
     def __init__(self, **kwargs): self.__dict__.update(kwargs)

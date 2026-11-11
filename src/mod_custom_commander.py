@@ -1,5 +1,5 @@
 # coding: utf-8
-"""Commander Friend 0.2.4 -- WoT EU 2.4.1.1, local cosmetic profiles."""
+"""Custom Commander 0.2.4 -- WoT EU 2.4.1.1, local cosmetic profiles."""
 from __future__ import absolute_import
 import json
 import logging
@@ -7,14 +7,14 @@ import os
 import wave
 import weakref
 
-LOG = logging.getLogger('CommanderFriend')
-LINKAGE = 'matisse.commander_friend'
-ACTION = 'commanderFriendToggle'
-PROFILE_ACTION = 'commanderFriendProfile_'
+LOG = logging.getLogger('CustomCommander')
+LINKAGE = 'custom_commander'
+ACTION = 'customCommanderToggle'
+PROFILE_ACTION = 'customCommanderProfile_'
 PROFILE_IDS = ('papacito', 'legacy')
 PROFILE_NAMES = {'papacito': u'Papacito', 'legacy': u'Profil personnel / démonstration'}
 ROOT = os.path.abspath(os.path.join('mods', 'configs', LINKAGE))
-AUDIO_PATH = os.path.join(ROOT, 'native_0.1.1', 'commander_friend_audio.pyd')
+AUDIO_PATH = os.path.join(ROOT, 'native_0.1.1', 'custom_commander_audio.pyd')
 DEFAULTS = {'enabled': True, 'portrait': True, 'voice': True, 'demo': True}
 SETTINGS = dict(DEFAULTS)
 SETTINGS['profile'] = 0
@@ -46,7 +46,7 @@ EVENT_FILES = {
     'vehicle_destroyed': 'vehicle_destroyed.wav',
 }
 try:
-    from commander_friend_catalog import EVENT_FILES
+    from custom_commander_catalog import EVENT_FILES
 except ImportError:
     pass
 
@@ -169,12 +169,12 @@ def current_crew():
 
 def portrait_url(profile='legacy'):
     if profile == 'papacito':
-        return 'coui://gui/maps/icons/commander_friend/profiles/papacito/portrait.jpg'
+        return 'coui://gui/maps/icons/custom_commander/profiles/papacito/portrait.jpg'
     if SETTINGS.get('demo', True):
-        return 'coui://gui/maps/icons/commander_friend/demo.png'
+        return 'coui://gui/maps/icons/custom_commander/demo.png'
     # A prepared PNG is stored loose in the versioned resource directory.
     import ResMgr
-    path = 'gui/maps/icons/commander_friend/friend.png'
+    path = 'gui/maps/icons/custom_commander/friend.png'
     if ResMgr.isFile(path):
         return 'coui://' + path
     return ''
@@ -285,7 +285,7 @@ def play_wav(path):
             stream.close()
         if SOUND is None:
             import imp
-            audio = imp.load_dynamic('commander_friend_audio', AUDIO_PATH)
+            audio = imp.load_dynamic('custom_commander_audio', AUDIO_PATH)
             SOUND = audio.play_sound
             LOG.info('Windows audio backend loaded')
         # SND_FILENAME | SND_ASYNC | SND_NODEFAULT; no executable loading.
@@ -372,8 +372,8 @@ def native_portrait_profile(tankman):
     if not NATIVE_ICON_READY:
         from gui.impl.gen import R
         root = R.images.gui.maps.icons.tankmen.icons.big
-        ids = [root.dyn('commander_friend_papacito')(),
-               root.crewSkins.dyn('commander_friend_papacito')()]
+        ids = [root.dyn('custom_commander_papacito')(),
+               root.crewSkins.dyn('custom_commander_papacito')()]
         NATIVE_ICON_READY = all(value is not None and value > 0 for value in ids)
         if NATIVE_ICON_READY:
             LOG.info('Native Papacito portrait resources ready')
@@ -390,7 +390,7 @@ def patch_native_portraits():
     def icon_factory(original):
         def icon(self):
             if native_portrait_profile(self):
-                return 'commander_friend_papacito'
+                return 'custom_commander_papacito'
             return original(self)
         return icon
     def name_factory(original):
@@ -454,8 +454,8 @@ def patch_portraits():
     def model_factory(original):
         def initialize(self):
             original(self)
-            gf_mod_inject(self, 'CommanderFriend', scripts=['coui://gui/gameface/mods/commander_friend/portrait.js'])
-            self._addStringProperty('commanderFriendJson', '{}')
+            gf_mod_inject(self, 'CustomCommander', scripts=['coui://gui/gameface/mods/custom_commander/portrait.js'])
+            self._addStringProperty('customCommanderJson', '{}')
             CREW_MODELS.add(self)
         return initialize
     def load_factory(original):
@@ -552,7 +552,7 @@ def button_clicked(linkage, name, value):
         return
     if name == 'preview':
         if not play_wav(sound_file(EVENT_FILES.get('start_battle', 'vo_start_battle.wav'), preview_profile())):
-            notice(u'Lecture impossible : vérifiez le fichier vocal et le journal CommanderFriend.')
+            notice(u'Lecture impossible : vérifiez le fichier vocal et le journal CustomCommander.')
         else:
             LOG.info('Voice preview started: %s', preview_profile())
     elif name == 'folder':
@@ -564,7 +564,7 @@ def button_clicked(linkage, name, value):
         if os.path.isfile(path):
             os.startfile(path)
     elif name == 'portraitFolder':
-        path = os.path.abspath(os.path.join('res_mods', '2.4.1.1', 'gui', 'maps', 'icons', 'commander_friend'))
+        path = os.path.abspath(os.path.join('res_mods', '2.4.1.1', 'gui', 'maps', 'icons', 'custom_commander'))
         if not os.path.isdir(path):
             os.makedirs(path)
         os.startfile(path)

@@ -7,7 +7,7 @@ import tempfile
 import unittest
 import wave
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src')))
-import mod_commander_friend as mod
+import mod_custom_commander as mod
 
 
 class GameDependencies(unittest.TestCase):
@@ -69,7 +69,7 @@ class GameDependencies(unittest.TestCase):
         # Load the built native module from its stable test location, so Windows
         # does not keep a DLL locked inside the disposable temp directory.
         mod.AUDIO_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), '..',
-                                      'dist', 'native_0.1.1', 'commander_friend_audio.pyd'))
+                                      'dist', 'native_0.1.1', 'custom_commander_audio.pyd'))
         path = os.path.join(self.root, 'silent.wav')
         stream = wave.open(path, 'wb')
         try:
